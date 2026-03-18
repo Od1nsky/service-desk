@@ -1,0 +1,51 @@
+// Colors
+$primary:   #0d6efd;
+$secondary: #6c757d;
+$success:   #198754;
+$warning:   #fd7e14;
+$danger:    #dc3545;
+$info:      #0dcaf0;
+$light:     #f8f9fa;
+$dark:      #212529;
+
+$bg:        #f0f2f5;
+$surface:   #ffffff;
+$border:    #e8e8e8;
+$text:      #1a1a2e;
+$text-muted:#6c757d;
+
+// Status colors
+$status-new:         #0d6efd;
+$status-in-progress: #fd7e14;
+$status-waiting:     #6c757d;
+$status-resolved:    #198754;
+$status-closed:      #adb5bd;
+
+// Sidebar
+$sidebar-width: 240px;
+$header-height: 64px;
+
+// Spacing
+$sp-1: 4px;
+$sp-2: 8px;
+$sp-3: 12px;
+$sp-4: 16px;
+$sp-5: 20px;
+$sp-6: 24px;
+$sp-8: 32px;
+
+// Radius
+$radius-sm: 4px;
+$radius:    8px;
+$radius-lg: 12px;
+
+// Shadows
+$shadow-sm: 0 1px 3px rgba(0,0,0,.08);
+$shadow:    0 2px 8px rgba(0,0,0,.12);
+$shadow-lg: 0 8px 24px rgba(0,0,0,.16);
+
+// Breakpoints
+$bp-sm:  576px;
+$bp-md:  768px;
+$bp-lg:  1024px;
+$bp-xl:  1280px;

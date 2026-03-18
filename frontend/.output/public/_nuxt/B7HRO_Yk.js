@@ -1,0 +1,1 @@
+import{u as e}from"./B9vZVzT3.js";const t={list:()=>e().get("/disciplines"),create:i=>e().post("/disciplines",i),update:(i,s)=>e().put(`/disciplines/${i}`,s),delete:i=>e().delete(`/disciplines/${i}`)};export{t as d};

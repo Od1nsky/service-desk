@@ -1,0 +1,1 @@
+import{u as o}from"./B9vZVzT3.js";const t={list:()=>o().get("/users"),updateRole:(s,e)=>o().patch(`/users/${s}/role`,{role:e}),block:(s,e)=>o().patch(`/users/${s}/block`,{is_active:e})};export{t as u};

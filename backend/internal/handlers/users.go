@@ -53,12 +53,12 @@ func (h *UserHandler) UpdateRole(c *gin.Context) {
 	}
 
 	validRoles := map[string]bool{
-		string(models.RoleEmployee): true,
-		string(models.RoleSupport):  true,
-		string(models.RoleAdmin):    true,
+		string(models.RoleStudent): true,
+		string(models.RoleTeacher): true,
+		string(models.RoleAdmin):   true,
 	}
 	if !validRoles[req.Role] {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid role; must be one of: employee, support, admin"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid role; must be one of: student, teacher, admin"})
 		return
 	}
 

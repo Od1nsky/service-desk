@@ -1,0 +1,9 @@
+{
+  // Nuxt 3 генерирует .nuxt/tsconfig.json — этот файл его расширяет
+  "extends": "./.nuxt/tsconfig.json",
+  "compilerOptions": {
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true
+  }
+}

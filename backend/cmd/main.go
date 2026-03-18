@@ -25,18 +25,18 @@ func main() {
 
 	// Repositories
 	userRepo := repository.NewUserRepo(database)
-	ticketRepo := repository.NewTicketRepo(database)
+	gradeRepo := repository.NewGradeRepo(database)
 	commentRepo := repository.NewCommentRepo(database)
-	categoryRepo := repository.NewCategoryRepo(database)
-	priorityRepo := repository.NewPriorityRepo(database)
+	disciplineRepo := repository.NewDisciplineRepo(database)
+	gradeTypeRepo := repository.NewGradeTypeRepo(database)
 	statsRepo := repository.NewStatsRepo(database)
 
 	// Handlers
 	authH := handlers.NewAuthHandler(userRepo, cfg.JWTSecret, cfg.AccessTTL, cfg.RefreshTTL)
-	ticketH := handlers.NewTicketHandler(ticketRepo)
+	gradeH := handlers.NewGradeHandler(gradeRepo)
 	commentH := handlers.NewCommentHandler(commentRepo)
-	categoryH := handlers.NewCategoryHandler(categoryRepo)
-	priorityH := handlers.NewPriorityHandler(priorityRepo)
+	disciplineH := handlers.NewDisciplineHandler(disciplineRepo)
+	gradeTypeH := handlers.NewGradeTypeHandler(gradeTypeRepo)
 	userH := handlers.NewUserHandler(userRepo)
 	statsH := handlers.NewStatsHandler(statsRepo)
 
@@ -60,34 +60,34 @@ func main() {
 	protected := api.Group("")
 	protected.Use(middleware.Auth(cfg.JWTSecret))
 	{
-		// Tickets
-		protected.GET("/tickets", ticketH.List)
-		protected.POST("/tickets", middleware.RequireRole("employee"), ticketH.Create)
-		protected.GET("/tickets/:id", ticketH.GetByID)
-		protected.PATCH("/tickets/:id/status", middleware.RequireRole("support", "admin"), ticketH.UpdateStatus)
-		protected.PATCH("/tickets/:id/assign", middleware.RequireRole("support"), ticketH.Assign)
-		protected.PATCH("/tickets/:id/rate", middleware.RequireRole("employee"), ticketH.Rate)
+		// Grades
+		protected.GET("/grades", gradeH.List)
+		protected.POST("/grades", middleware.RequireRole("student"), gradeH.Create)
+		protected.GET("/grades/:id", gradeH.GetByID)
+		protected.PATCH("/grades/:id/status", middleware.RequireRole("teacher", "admin"), gradeH.UpdateStatus)
+		protected.PATCH("/grades/:id/assign", middleware.RequireRole("teacher"), gradeH.Assign)
+		protected.PATCH("/grades/:id/acknowledge", middleware.RequireRole("teacher", "admin"), gradeH.Acknowledge)
 
 		// Comments
-		protected.GET("/tickets/:id/comments", commentH.List)
-		protected.POST("/tickets/:id/comments", commentH.Create)
+		protected.GET("/grades/:id/comments", commentH.List)
+		protected.POST("/grades/:id/comments", commentH.Create)
 
-		// Categories
-		protected.GET("/categories", categoryH.List)
-		protected.POST("/categories", middleware.RequireRole("admin"), categoryH.Create)
-		protected.PUT("/categories/:id", middleware.RequireRole("admin"), categoryH.Update)
-		protected.DELETE("/categories/:id", middleware.RequireRole("admin"), categoryH.Delete)
+		// Disciplines
+		protected.GET("/disciplines", disciplineH.List)
+		protected.POST("/disciplines", middleware.RequireRole("admin"), disciplineH.Create)
+		protected.PUT("/disciplines/:id", middleware.RequireRole("admin"), disciplineH.Update)
+		protected.DELETE("/disciplines/:id", middleware.RequireRole("admin"), disciplineH.Delete)
 
-		// Priorities
-		protected.GET("/priorities", priorityH.List)
+		// Grade types
+		protected.GET("/grade-types", gradeTypeH.List)
 
 		// Users (admin)
 		protected.GET("/users", middleware.RequireRole("admin"), userH.List)
 		protected.PATCH("/users/:id/role", middleware.RequireRole("admin"), userH.UpdateRole)
 		protected.PATCH("/users/:id/block", middleware.RequireRole("admin"), userH.Block)
 
-		// Stats (admin + support)
-		protected.GET("/stats/dashboard", middleware.RequireRole("admin", "support"), statsH.Dashboard)
+		// Stats (admin + teacher)
+		protected.GET("/stats/dashboard", middleware.RequireRole("admin", "teacher"), statsH.Dashboard)
 	}
 
 	log.Printf("starting server on :%s", cfg.ServerPort)

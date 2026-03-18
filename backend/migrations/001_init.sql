@@ -1,5 +1,5 @@
 -- ============================================================
--- ServiceDesk database schema
+-- АИС контроля текущей успеваемости студентов — database schema
 -- ============================================================
 
 -- Enable UUID generation
@@ -13,8 +13,8 @@ CREATE TABLE IF NOT EXISTS users (
     email       VARCHAR(255) NOT NULL UNIQUE,
     password    VARCHAR(255) NOT NULL,
     full_name   VARCHAR(255) NOT NULL,
-    role        VARCHAR(20)  NOT NULL DEFAULT 'employee'
-                    CHECK (role IN ('employee', 'support', 'admin')),
+    role        VARCHAR(20)  NOT NULL DEFAULT 'student'
+                    CHECK (role IN ('student', 'teacher', 'admin')),
     is_active   BOOLEAN      NOT NULL DEFAULT TRUE,
     created_at  TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
     updated_at  TIMESTAMPTZ  NOT NULL DEFAULT NOW()
@@ -32,9 +32,9 @@ CREATE TABLE IF NOT EXISTS refresh_tokens (
 );
 
 -- ------------------------------------------------------------
--- categories
+-- disciplines
 -- ------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS categories (
+CREATE TABLE IF NOT EXISTS disciplines (
     id          SERIAL PRIMARY KEY,
     name        VARCHAR(100) NOT NULL,
     description TEXT         NOT NULL DEFAULT '',
@@ -42,33 +42,33 @@ CREATE TABLE IF NOT EXISTS categories (
 );
 
 -- ------------------------------------------------------------
--- priorities
+-- grade_types
 -- ------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS priorities (
+CREATE TABLE IF NOT EXISTS grade_types (
     id        SERIAL PRIMARY KEY,
     name      VARCHAR(50) NOT NULL,
     color     VARCHAR(7)  NOT NULL,
-    sla_hours INTEGER     NOT NULL
+    max_score INTEGER     NOT NULL DEFAULT 100
 );
 
 -- ------------------------------------------------------------
--- tickets
+-- grades
 -- ------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS tickets (
-    id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    number       SERIAL UNIQUE,
-    title        VARCHAR(255) NOT NULL,
-    description  TEXT         NOT NULL DEFAULT '',
-    status       VARCHAR(20)  NOT NULL DEFAULT 'new'
-                     CHECK (status IN ('new', 'in_progress', 'waiting', 'resolved', 'closed')),
-    author_id    UUID         NOT NULL REFERENCES users(id),
-    assignee_id  UUID                  REFERENCES users(id),
-    category_id  INTEGER      NOT NULL REFERENCES categories(id),
-    priority_id  INTEGER      NOT NULL REFERENCES priorities(id),
-    rating       SMALLINT              CHECK (rating BETWEEN 1 AND 5),
-    created_at   TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
-    updated_at   TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
-    closed_at    TIMESTAMPTZ
+CREATE TABLE IF NOT EXISTS grades (
+    id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    number         SERIAL UNIQUE,
+    task_name      VARCHAR(255) NOT NULL,
+    notes          TEXT         NOT NULL DEFAULT '',
+    status         VARCHAR(20)  NOT NULL DEFAULT 'pending'
+                       CHECK (status IN ('pending', 'graded', 'not_certified', 'certified', 'closed')),
+    student_id     UUID         NOT NULL REFERENCES users(id),
+    teacher_id     UUID                  REFERENCES users(id),
+    discipline_id  INTEGER      NOT NULL REFERENCES disciplines(id),
+    grade_type_id  INTEGER      NOT NULL REFERENCES grade_types(id),
+    score          SMALLINT              CHECK (score BETWEEN 0 AND 100),
+    created_at     TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+    updated_at     TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+    graded_at      TIMESTAMPTZ
 );
 
 -- ------------------------------------------------------------
@@ -76,7 +76,7 @@ CREATE TABLE IF NOT EXISTS tickets (
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS comments (
     id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    ticket_id   UUID         NOT NULL REFERENCES tickets(id) ON DELETE CASCADE,
+    grade_id    UUID         NOT NULL REFERENCES grades(id) ON DELETE CASCADE,
     author_id   UUID         NOT NULL REFERENCES users(id),
     body        TEXT         NOT NULL,
     is_internal BOOLEAN      NOT NULL DEFAULT FALSE,
@@ -84,44 +84,44 @@ CREATE TABLE IF NOT EXISTS comments (
 );
 
 -- ------------------------------------------------------------
--- status_history
+-- grade_history
 -- ------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS status_history (
+CREATE TABLE IF NOT EXISTS grade_history (
     id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    ticket_id   UUID         NOT NULL REFERENCES tickets(id) ON DELETE CASCADE,
+    grade_id    UUID         NOT NULL REFERENCES grades(id) ON DELETE CASCADE,
     changed_by  UUID         NOT NULL REFERENCES users(id),
-    old_status  VARCHAR(20)  NOT NULL,
-    new_status  VARCHAR(20)  NOT NULL,
+    old_value   VARCHAR(20)  NOT NULL,
+    new_value   VARCHAR(20)  NOT NULL,
     changed_at  TIMESTAMPTZ  NOT NULL DEFAULT NOW()
 );
 
 -- ------------------------------------------------------------
 -- Indexes
 -- ------------------------------------------------------------
-CREATE INDEX IF NOT EXISTS idx_tickets_author_id    ON tickets(author_id);
-CREATE INDEX IF NOT EXISTS idx_tickets_assignee_id  ON tickets(assignee_id);
-CREATE INDEX IF NOT EXISTS idx_tickets_status       ON tickets(status);
-CREATE INDEX IF NOT EXISTS idx_comments_ticket_id   ON comments(ticket_id);
-CREATE INDEX IF NOT EXISTS idx_status_history_ticket_id ON status_history(ticket_id);
-CREATE INDEX IF NOT EXISTS idx_refresh_tokens_user_id   ON refresh_tokens(user_id);
+CREATE INDEX IF NOT EXISTS idx_grades_student_id    ON grades(student_id);
+CREATE INDEX IF NOT EXISTS idx_grades_teacher_id    ON grades(teacher_id);
+CREATE INDEX IF NOT EXISTS idx_grades_status        ON grades(status);
+CREATE INDEX IF NOT EXISTS idx_comments_grade_id    ON comments(grade_id);
+CREATE INDEX IF NOT EXISTS idx_grade_history_grade_id ON grade_history(grade_id);
+CREATE INDEX IF NOT EXISTS idx_refresh_tokens_user_id ON refresh_tokens(user_id);
 
 -- ------------------------------------------------------------
--- Seed data – priorities
+-- Seed data – grade_types
 -- ------------------------------------------------------------
-INSERT INTO priorities (name, color, sla_hours) VALUES
-    ('Low',      '#6c757d', 72),
-    ('Medium',   '#0d6efd', 24),
-    ('High',     '#fd7e14',  8),
-    ('Critical', '#dc3545',  4)
+INSERT INTO grade_types (name, color, max_score) VALUES
+    ('Текущая',     '#0dcaf0', 100),
+    ('Рубежная',    '#fd7e14', 100),
+    ('Итоговая',    '#0d6efd', 100),
+    ('Посещаемость','#198754',   1)
 ON CONFLICT DO NOTHING;
 
 -- ------------------------------------------------------------
--- Seed data – categories
+-- Seed data – disciplines
 -- ------------------------------------------------------------
-INSERT INTO categories (name, description) VALUES
-    ('Hardware', ''),
-    ('Software', ''),
-    ('Network',  ''),
-    ('Access',   ''),
-    ('Other',    '')
+INSERT INTO disciplines (name, description) VALUES
+    ('Математический анализ',   'Фундаментальный математический курс'),
+    ('Базы данных',             'Теория и практика проектирования БД'),
+    ('Информационные системы',  'Разработка и анализ ИС'),
+    ('Программирование на Go',  'Системное программирование на Go'),
+    ('Веб-разработка',          'Фронтенд и бэкенд веб-приложений')
 ON CONFLICT DO NOTHING;

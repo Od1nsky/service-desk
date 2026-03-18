@@ -2,6 +2,8 @@ package repository
 
 import (
 	"database/sql"
+
+	"github.com/servicedesk/backend/internal/models"
 )
 
 // StatsRepo handles analytics queries.
@@ -13,90 +15,82 @@ func NewStatsRepo(db *sql.DB) *StatsRepo {
 	return &StatsRepo{db: db}
 }
 
-// Dashboard returns a map of aggregated metrics for the dashboard.
-func (r *StatsRepo) Dashboard() (map[string]interface{}, error) {
-	result := make(map[string]interface{})
+// Dashboard returns aggregated metrics for the dashboard.
+func (r *StatsRepo) Dashboard() (*models.DashboardStats, error) {
+	stats := &models.DashboardStats{
+		GradesByStatus: make(map[string]int),
+	}
 
-	// -- tickets_by_status --
-	statusRows, err := r.db.Query(`SELECT status, COUNT(*) FROM tickets GROUP BY status`)
+	// -- grades_by_status --
+	statusRows, err := r.db.Query(`SELECT status, COUNT(*) FROM grades GROUP BY status`)
 	if err != nil {
 		return nil, err
 	}
 	defer statusRows.Close()
 
-	byStatus := make(map[string]int)
-	totalTickets := 0
+	totalGrades := 0
 	for statusRows.Next() {
 		var status string
 		var count int
 		if err := statusRows.Scan(&status, &count); err != nil {
 			return nil, err
 		}
-		byStatus[status] = count
-		totalTickets += count
+		stats.GradesByStatus[status] = count
+		totalGrades += count
 	}
 	if err := statusRows.Err(); err != nil {
 		return nil, err
 	}
-	result["tickets_by_status"] = byStatus
-	result["total_tickets"] = totalTickets
+	stats.TotalGrades = totalGrades
 
-	// -- avg_resolution_hours --
-	var avgResolution sql.NullFloat64
-	err = r.db.QueryRow(`
-		SELECT AVG(EXTRACT(EPOCH FROM (closed_at - created_at)) / 3600)
-		FROM tickets
-		WHERE status = 'closed' AND closed_at IS NOT NULL`).Scan(&avgResolution)
-	if err != nil {
+	// -- pending_grades --
+	var pendingCount int
+	if err := r.db.QueryRow(`SELECT COUNT(*) FROM grades WHERE status = 'pending'`).Scan(&pendingCount); err != nil {
 		return nil, err
 	}
-	if avgResolution.Valid {
-		result["avg_resolution_hours"] = avgResolution.Float64
-	} else {
-		result["avg_resolution_hours"] = nil
-	}
+	stats.PendingGrades = pendingCount
 
-	// -- open_tickets --
-	var openCount int
-	err = r.db.QueryRow(`
-		SELECT COUNT(*) FROM tickets
-		WHERE status NOT IN ('closed')`).Scan(&openCount)
-	if err != nil {
+	// -- avg_score --
+	var avgScore sql.NullFloat64
+	if err := r.db.QueryRow(`
+		SELECT AVG(score)
+		FROM grades
+		WHERE score IS NOT NULL`).Scan(&avgScore); err != nil {
 		return nil, err
 	}
-	result["open_tickets"] = openCount
+	if avgScore.Valid {
+		stats.AvgScore = &avgScore.Float64
+	}
 
-	// -- top_assignees --
-	assigneeRows, err := r.db.Query(`
+	// -- top_teachers --
+	teacherRows, err := r.db.Query(`
 		SELECT u.id, u.full_name, COUNT(*) AS count
-		FROM tickets t
-		JOIN users u ON u.id = t.assignee_id
-		WHERE t.status IN ('resolved', 'closed')
+		FROM grades g
+		JOIN users u ON u.id = g.teacher_id
+		WHERE g.status IN ('certified', 'closed')
 		GROUP BY u.id, u.full_name
 		ORDER BY count DESC
 		LIMIT 5`)
 	if err != nil {
 		return nil, err
 	}
-	defer assigneeRows.Close()
+	defer teacherRows.Close()
 
-	type assigneeStat struct {
-		ID       string `json:"id"`
-		FullName string `json:"full_name"`
-		Count    int    `json:"count"`
-	}
-	var topAssignees []assigneeStat
-	for assigneeRows.Next() {
-		var a assigneeStat
-		if err := assigneeRows.Scan(&a.ID, &a.FullName, &a.Count); err != nil {
+	var topTeachers []models.TeacherStat
+	for teacherRows.Next() {
+		var t models.TeacherStat
+		if err := teacherRows.Scan(&t.ID, &t.FullName, &t.Count); err != nil {
 			return nil, err
 		}
-		topAssignees = append(topAssignees, a)
+		topTeachers = append(topTeachers, t)
 	}
-	if err := assigneeRows.Err(); err != nil {
+	if err := teacherRows.Err(); err != nil {
 		return nil, err
 	}
-	result["top_assignees"] = topAssignees
+	if topTeachers == nil {
+		topTeachers = []models.TeacherStat{}
+	}
+	stats.TopTeachers = topTeachers
 
-	return result, nil
+	return stats, nil
 }

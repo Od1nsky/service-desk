@@ -1,0 +1,27 @@
+{
+  "name": "servicedesk-frontend",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview"
+  },
+  "dependencies": {
+    "@pinia/nuxt": "^0.5.1",
+    "@vicons/ionicons5": "^0.12.0",
+    "axios": "^1.6.7",
+    "naive-ui": "^2.38.2",
+    "nuxt": "^3.10.3",
+    "pinia": "^2.1.7",
+    "typescript": "^5.9.3",
+    "vfonts": "^0.0.3",
+    "vue": "^3.4.19"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.58.2",
+    "@types/node": "^25.5.0",
+    "sass": "^1.71.1"
+  }
+}

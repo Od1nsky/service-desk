@@ -18,16 +18,16 @@ func NewCommentHandler(repo *repository.CommentRepo) *CommentHandler {
 	return &CommentHandler{repo: repo}
 }
 
-// List returns comments for a ticket.
-// Employees see only non-internal comments; support/admin see all.
+// List returns comments for a grade.
+// Students see only non-internal comments; teacher/admin see all.
 func (h *CommentHandler) List(c *gin.Context) {
-	ticketID := c.Param("id")
+	gradeID := c.Param("id")
 	role, _ := c.Get(middleware.ContextRole)
 
-	includeInternal := role.(string) == string(models.RoleSupport) ||
+	includeInternal := role.(string) == string(models.RoleTeacher) ||
 		role.(string) == string(models.RoleAdmin)
 
-	comments, err := h.repo.ListByTicket(ticketID, includeInternal)
+	comments, err := h.repo.ListByGrade(gradeID, includeInternal)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to fetch comments"})
 		return
@@ -39,16 +39,16 @@ func (h *CommentHandler) List(c *gin.Context) {
 	c.JSON(http.StatusOK, comments)
 }
 
-// createCommentRequest is the expected body for POST /tickets/:id/comments.
+// createCommentRequest is the expected body for POST /grades/:id/comments.
 type createCommentRequest struct {
 	Body       string `json:"body"        binding:"required"`
 	IsInternal bool   `json:"is_internal"`
 }
 
-// Create adds a new comment to the ticket.
-// Employees cannot create internal comments.
+// Create adds a new comment to the grade.
+// Students cannot create internal comments.
 func (h *CommentHandler) Create(c *gin.Context) {
-	ticketID := c.Param("id")
+	gradeID := c.Param("id")
 	authorID, _ := c.Get(middleware.ContextUserID)
 	role, _ := c.Get(middleware.ContextRole)
 
@@ -58,12 +58,12 @@ func (h *CommentHandler) Create(c *gin.Context) {
 		return
 	}
 
-	// Employees cannot post internal comments
-	if role.(string) == string(models.RoleEmployee) {
+	// Students cannot post internal comments
+	if role.(string) == string(models.RoleStudent) {
 		req.IsInternal = false
 	}
 
-	comment, err := h.repo.Create(ticketID, authorID.(string), req.Body, req.IsInternal)
+	comment, err := h.repo.Create(gradeID, authorID.(string), req.Body, req.IsInternal)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create comment"})
 		return

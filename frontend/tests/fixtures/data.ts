@@ -1,0 +1,215 @@
+import type { User, Grade, Comment, Discipline, GradeType, GradeHistory } from '../../types'
+
+export const MOCK_USERS = {
+  student: {
+    id: 'user-stu-1',
+    email: 'ivanov@university.ru',
+    full_name: 'Иван Иванов',
+    role: 'student',
+    is_active: true,
+    created_at: '2025-01-10T09:00:00Z',
+    updated_at: '2025-01-10T09:00:00Z',
+  } as User,
+  teacher: {
+    id: 'user-tch-1',
+    email: 'petrov@university.ru',
+    full_name: 'Дмитрий Петров',
+    role: 'teacher',
+    is_active: true,
+    created_at: '2025-01-05T09:00:00Z',
+    updated_at: '2025-01-05T09:00:00Z',
+  } as User,
+  admin: {
+    id: 'user-adm-1',
+    email: 'admin@university.ru',
+    full_name: 'Александр Смирнов',
+    role: 'admin',
+    is_active: true,
+    created_at: '2025-01-01T09:00:00Z',
+    updated_at: '2025-01-01T09:00:00Z',
+  } as User,
+}
+
+export const MOCK_GRADE_TYPES: GradeType[] = [
+  { id: 1, name: 'Зачёт',        color: '#6c757d', max_score: 1  },
+  { id: 2, name: 'Экзамен',      color: '#0d6efd', max_score: 100 },
+  { id: 3, name: 'Курсовая',     color: '#fd7e14', max_score: 100 },
+  { id: 4, name: 'Лабораторная', color: '#dc3545', max_score: 10  },
+]
+
+export const MOCK_DISCIPLINES: Discipline[] = [
+  { id: 1, name: 'Математика', description: 'Высшая математика', created_at: '2025-01-01T00:00:00Z' },
+  { id: 2, name: 'Физика', description: 'Общая физика', created_at: '2025-01-01T00:00:00Z' },
+  { id: 3, name: 'Информатика', description: 'Основы информатики', created_at: '2025-01-01T00:00:00Z' },
+  { id: 4, name: 'История', description: 'История России', created_at: '2025-01-01T00:00:00Z' },
+  { id: 5, name: 'Экономика', description: 'Основы экономики', created_at: '2025-01-01T00:00:00Z' },
+]
+
+const studentInfo = { id: 'user-stu-1', full_name: 'Иван Иванов', email: 'ivanov@university.ru' }
+const teacherInfo = { id: 'user-tch-1', full_name: 'Дмитрий Петров', email: 'petrov@university.ru' }
+
+export const MOCK_GRADES: Grade[] = [
+  {
+    id: 'grade-1',
+    number: 1001,
+    task_name: 'Контрольная работа №1',
+    notes: 'Тема: Пределы и непрерывность',
+    status: 'graded',
+    student_id: 'user-stu-1',
+    teacher_id: 'user-tch-1',
+    discipline_id: 1,
+    grade_type_id: 3,
+    score: 85,
+    created_at: '2025-03-15T10:30:00Z',
+    updated_at: '2025-03-15T11:00:00Z',
+    graded_at: '2025-03-15T11:00:00Z',
+    student: studentInfo,
+    teacher: teacherInfo,
+    discipline: MOCK_DISCIPLINES[0],
+    grade_type: MOCK_GRADE_TYPES[1],
+  },
+  {
+    id: 'grade-2',
+    number: 1002,
+    task_name: 'Лабораторная работа №3',
+    notes: 'Исследование движения маятника',
+    status: 'pending',
+    student_id: 'user-stu-1',
+    teacher_id: null,
+    discipline_id: 2,
+    grade_type_id: 4,
+    score: null,
+    created_at: '2025-03-16T09:00:00Z',
+    updated_at: '2025-03-16T09:00:00Z',
+    graded_at: null,
+    student: studentInfo,
+    teacher: undefined,
+    discipline: MOCK_DISCIPLINES[1],
+    grade_type: MOCK_GRADE_TYPES[3],
+  },
+  {
+    id: 'grade-3',
+    number: 1003,
+    task_name: 'Курсовой проект',
+    notes: 'Разработка веб-приложения',
+    status: 'certified',
+    student_id: 'user-stu-1',
+    teacher_id: 'user-tch-1',
+    discipline_id: 3,
+    grade_type_id: 3,
+    score: 92,
+    created_at: '2025-03-10T14:00:00Z',
+    updated_at: '2025-03-12T16:00:00Z',
+    graded_at: '2025-03-12T16:00:00Z',
+    student: studentInfo,
+    teacher: teacherInfo,
+    discipline: MOCK_DISCIPLINES[2],
+    grade_type: MOCK_GRADE_TYPES[2],
+  },
+  {
+    id: 'grade-4',
+    number: 1004,
+    task_name: 'Экзаменационный билет №7',
+    notes: 'Устный экзамен',
+    status: 'not_certified',
+    student_id: 'user-stu-1',
+    teacher_id: 'user-tch-1',
+    discipline_id: 4,
+    grade_type_id: 2,
+    score: 40,
+    created_at: '2025-03-14T11:00:00Z',
+    updated_at: '2025-03-14T15:00:00Z',
+    graded_at: '2025-03-14T15:00:00Z',
+    student: studentInfo,
+    teacher: teacherInfo,
+    discipline: MOCK_DISCIPLINES[3],
+    grade_type: MOCK_GRADE_TYPES[1],
+  },
+  {
+    id: 'grade-5',
+    number: 1005,
+    task_name: 'Зачётная работа',
+    notes: 'Итоговый зачёт по экономике',
+    status: 'closed',
+    student_id: 'user-stu-1',
+    teacher_id: 'user-tch-1',
+    discipline_id: 5,
+    grade_type_id: 1,
+    score: 1,
+    created_at: '2025-03-05T09:00:00Z',
+    updated_at: '2025-03-06T14:00:00Z',
+    graded_at: '2025-03-06T14:00:00Z',
+    student: studentInfo,
+    teacher: teacherInfo,
+    discipline: MOCK_DISCIPLINES[4],
+    grade_type: MOCK_GRADE_TYPES[0],
+  },
+]
+
+export const MOCK_COMMENTS: Comment[] = [
+  {
+    id: 'comment-1',
+    ticket_id: 'grade-1',
+    author_id: 'user-tch-1',
+    body: 'Работа выполнена на хорошем уровне. Небольшие замечания по оформлению.',
+    is_internal: false,
+    created_at: '2025-03-15T11:30:00Z',
+    author: teacherInfo,
+  },
+  {
+    id: 'comment-2',
+    ticket_id: 'grade-1',
+    author_id: 'user-tch-1',
+    body: 'Внутренняя заметка: студент демонстрировал уверенные знания темы.',
+    is_internal: true,
+    created_at: '2025-03-15T11:35:00Z',
+    author: teacherInfo,
+  },
+  {
+    id: 'comment-3',
+    ticket_id: 'grade-1',
+    author_id: 'user-stu-1',
+    body: 'Спасибо! Учту замечания.',
+    is_internal: false,
+    created_at: '2025-03-15T12:00:00Z',
+    author: studentInfo,
+  },
+]
+
+export const MOCK_HISTORY: GradeHistory[] = [
+  {
+    id: 'hist-1',
+    ticket_id: 'grade-1',
+    changed_by: 'user-tch-1',
+    old_value: 'pending',
+    new_value: 'graded',
+    changed_at: '2025-03-15T11:00:00Z',
+    user: teacherInfo,
+  },
+]
+
+export const MOCK_ALL_USERS: User[] = [
+  MOCK_USERS.student,
+  { ...MOCK_USERS.student, id: 'user-stu-2', email: 'sidorova@university.ru', full_name: 'Анна Сидорова' },
+  { ...MOCK_USERS.student, id: 'user-stu-3', email: 'kozlov@university.ru', full_name: 'Сергей Козлов', is_active: false },
+  MOCK_USERS.teacher,
+  { ...MOCK_USERS.teacher, id: 'user-tch-2', email: 'lebedeva@university.ru', full_name: 'Ольга Лебедева' },
+  MOCK_USERS.admin,
+]
+
+export const MOCK_DASHBOARD = {
+  total_grades: 47,
+  pending_grades: 12,
+  avg_score: 78.4,
+  grades_by_status: {
+    pending: 5,
+    graded: 4,
+    not_certified: 3,
+    certified: 8,
+    closed: 27,
+  },
+  top_teachers: [
+    { id: 'user-tch-1', full_name: 'Дмитрий Петров', count: 18 },
+    { id: 'user-tch-2', full_name: 'Ольга Лебедева', count: 14 },
+  ],
+}

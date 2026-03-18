@@ -17,15 +17,15 @@ func NewCommentRepo(db *sql.DB) *CommentRepo {
 }
 
 // Create inserts a new comment and returns the populated record including author info.
-func (r *CommentRepo) Create(ticketID, authorID, body string, isInternal bool) (*models.Comment, error) {
+func (r *CommentRepo) Create(gradeID, authorID, body string, isInternal bool) (*models.Comment, error) {
 	const insertQ = `
-		INSERT INTO comments (ticket_id, author_id, body, is_internal)
+		INSERT INTO comments (grade_id, author_id, body, is_internal)
 		VALUES ($1, $2, $3, $4)
-		RETURNING id, ticket_id, author_id, body, is_internal, created_at`
+		RETURNING id, grade_id, author_id, body, is_internal, created_at`
 
 	c := &models.Comment{}
-	err := r.db.QueryRow(insertQ, ticketID, authorID, body, isInternal).
-		Scan(&c.ID, &c.TicketID, &c.AuthorID, &c.Body, &c.IsInternal, &c.CreatedAt)
+	err := r.db.QueryRow(insertQ, gradeID, authorID, body, isInternal).
+		Scan(&c.ID, &c.GradeID, &c.AuthorID, &c.Body, &c.IsInternal, &c.CreatedAt)
 	if err != nil {
 		return nil, err
 	}
@@ -44,22 +44,22 @@ func (r *CommentRepo) Create(ticketID, authorID, body string, isInternal bool) (
 	return c, nil
 }
 
-// ListByTicket returns all comments for a ticket. When includeInternal is false,
+// ListByGrade returns all comments for a grade. When includeInternal is false,
 // internal comments are excluded.
-func (r *CommentRepo) ListByTicket(ticketID string, includeInternal bool) ([]*models.Comment, error) {
+func (r *CommentRepo) ListByGrade(gradeID string, includeInternal bool) ([]*models.Comment, error) {
 	query := `
-		SELECT c.id, c.ticket_id, c.author_id, c.body, c.is_internal, c.created_at,
+		SELECT c.id, c.grade_id, c.author_id, c.body, c.is_internal, c.created_at,
 		       u.id, u.full_name, u.email
 		FROM comments c
 		JOIN users u ON u.id = c.author_id
-		WHERE c.ticket_id = $1`
+		WHERE c.grade_id = $1`
 
 	if !includeInternal {
 		query += " AND c.is_internal = FALSE"
 	}
 	query += " ORDER BY c.created_at ASC"
 
-	rows, err := r.db.Query(query, ticketID)
+	rows, err := r.db.Query(query, gradeID)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +70,7 @@ func (r *CommentRepo) ListByTicket(ticketID string, includeInternal bool) ([]*mo
 		c := &models.Comment{}
 		author := &models.UserInfo{}
 		if err := rows.Scan(
-			&c.ID, &c.TicketID, &c.AuthorID, &c.Body, &c.IsInternal, &c.CreatedAt,
+			&c.ID, &c.GradeID, &c.AuthorID, &c.Body, &c.IsInternal, &c.CreatedAt,
 			&author.ID, &author.FullName, &author.Email,
 		); err != nil {
 			return nil, err

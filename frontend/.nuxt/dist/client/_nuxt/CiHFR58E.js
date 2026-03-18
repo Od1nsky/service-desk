@@ -1,0 +1,1 @@
+import{u as s}from"./B9vZVzT3.js";const g={list:a=>s().get("/grades",{params:a}),getById:a=>s().get(`/grades/${a}`),create:a=>s().post("/grades",a),updateStatus:(a,e)=>s().patch(`/grades/${a}/status`,{status:e}),assign:a=>s().patch(`/grades/${a}/assign`),acknowledge:a=>s().patch(`/grades/${a}/acknowledge`)};export{g};

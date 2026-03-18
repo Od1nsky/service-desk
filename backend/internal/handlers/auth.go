@@ -32,12 +32,12 @@ func NewAuthHandler(userRepo *repository.UserRepo, jwtSecret string, accessTTL, 
 
 // registerRequest is the expected body for /auth/register.
 type registerRequest struct {
-	Email    string `json:"email"    binding:"required,email"`
-	Password string `json:"password" binding:"required,min=8"`
+	Email    string `json:"email"     binding:"required,email"`
+	Password string `json:"password"  binding:"required,min=8"`
 	FullName string `json:"full_name" binding:"required"`
 }
 
-// Register creates a new user account with role "employee".
+// Register creates a new user account with role "student".
 func (h *AuthHandler) Register(c *gin.Context) {
 	var req registerRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -61,7 +61,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
-	user, err := h.userRepo.Create(req.Email, string(hash), req.FullName, models.RoleEmployee)
+	user, err := h.userRepo.Create(req.Email, string(hash), req.FullName, models.RoleStudent)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create user"})
 		return

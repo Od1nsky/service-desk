@@ -16,7 +16,7 @@ func NewStatsHandler(repo *repository.StatsRepo) *StatsHandler {
 	return &StatsHandler{repo: repo}
 }
 
-// Dashboard returns aggregated metrics for the admin/support dashboard.
+// Dashboard returns aggregated metrics for the admin/teacher dashboard.
 func (h *StatsHandler) Dashboard(c *gin.Context) {
 	data, err := h.repo.Dashboard()
 	if err != nil {

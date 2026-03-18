@@ -1,0 +1,1 @@
+import{bO as a,bP as r}from"./UPofMcO5.js";const n=a(()=>{const e=localStorage.getItem("user");if(!e)return r("/auth/login");const t=JSON.parse(e);if(t.role!=="teacher"&&t.role!=="admin")return r("/")});export{n as default};

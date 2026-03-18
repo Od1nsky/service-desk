@@ -1,0 +1,7 @@
+export { authApi } from './auth'
+export { gradesApi } from './grades'
+export { commentsApi } from './comments'
+export { disciplinesApi } from './disciplines'
+export { gradeTypesApi } from './grade-types'
+export { usersApi } from './users'
+export { statsApi } from './stats'

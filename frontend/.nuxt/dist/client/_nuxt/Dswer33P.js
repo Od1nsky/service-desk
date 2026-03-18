@@ -1,0 +1,1 @@
+import{u as o}from"./B9vZVzT3.js";import"./UPofMcO5.js";const e={register:t=>o().post("/auth/register",t),login:t=>o().post("/auth/login",t),refresh:t=>o().post("/auth/refresh",{refresh_token:t}),logout:t=>o().post("/auth/logout",{refresh_token:t})};export{e as authApi};
