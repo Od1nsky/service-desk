@@ -59,10 +59,19 @@ test.describe('Teacher flow', () => {
     await screenshot(page, '17-comment-form-teacher', proj)
   })
 
-  test('create grade form', async ({ page }, testInfo) => {
+  test('create grade form — empty', async ({ page }, testInfo) => {
     const proj = testInfo.project.name
     await page.goto('/grades/create')
     await page.waitForSelector('.n-form', { timeout: 8000 })
     await screenshot(page, '07-create-grade-empty', proj)
+  })
+
+  test('create grade form — filled', async ({ page }, testInfo) => {
+    const proj = testInfo.project.name
+    await page.goto('/grades/create')
+    await page.waitForSelector('.n-form', { timeout: 8000 })
+    // Fill task_name field
+    await page.fill('.n-form .n-input input, .n-form .n-input textarea', 'Контрольная работа по теме «Пределы»')
+    await screenshot(page, '08-create-grade-filled', proj)
   })
 })
