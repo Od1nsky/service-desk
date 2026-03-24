@@ -1122,14 +1122,14 @@ const assets = {
   "/index.mjs": {
     "type": "text/javascript; charset=utf-8",
     "etag": "\"126ad-9C4VwKpa5/6LTb0bcYbWlBE2NcM\"",
-    "mtime": "2026-03-18T19:53:42.509Z",
+    "mtime": "2026-03-24T16:06:15.932Z",
     "size": 75437,
     "path": "index.mjs"
   },
   "/index.mjs.map": {
     "type": "application/json",
     "etag": "\"450a6-OLhqy9WYJZ68yeLiGsTjoJoTdiQ\"",
-    "mtime": "2026-03-18T19:53:42.509Z",
+    "mtime": "2026-03-24T16:06:15.932Z",
     "size": 282790,
     "path": "index.mjs.map"
   }

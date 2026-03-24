@@ -109,10 +109,10 @@ CREATE INDEX IF NOT EXISTS idx_refresh_tokens_user_id ON refresh_tokens(user_id)
 -- Seed data – grade_types
 -- ------------------------------------------------------------
 INSERT INTO grade_types (name, color, max_score) VALUES
-    ('Текущая',     '#0dcaf0', 100),
-    ('Рубежная',    '#fd7e14', 100),
-    ('Итоговая',    '#0d6efd', 100),
-    ('Посещаемость','#198754',   1)
+    ('Текущая', '#0dcaf0', 100),
+    ('Рубежная', '#fd7e14', 100),
+    ('Зачёт',   '#198754',   1),
+    ('Экзамен', '#0d6efd', 100)
 ON CONFLICT DO NOTHING;
 
 -- ------------------------------------------------------------
