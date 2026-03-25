@@ -58,4 +58,13 @@ test.describe('Student flow', () => {
     }
     await screenshot(page, '11-sidebar-student', proj)
   })
+
+  test('grades — disciplines tab (student)', async ({ page }, testInfo) => {
+    const proj = testInfo.project.name
+    await page.goto('/grades')
+    await page.waitForSelector('.n-tabs', { timeout: 8000 })
+    await page.click('.n-tabs-tab:has-text("По дисциплинам")')
+    await page.waitForTimeout(800)
+    await screenshot(page, '27-student-disciplines-summary', proj)
+  })
 })

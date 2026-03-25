@@ -1,4 +1,4 @@
-import type { User, Grade, Comment, Discipline, GradeType, GradeHistory } from '../../types'
+import type { User, Grade, Comment, Discipline, GradeType, GradeHistory, DisciplineGrade } from '../../types'
 
 export const MOCK_USERS = {
   student: {
@@ -195,6 +195,51 @@ export const MOCK_ALL_USERS: User[] = [
   MOCK_USERS.teacher,
   { ...MOCK_USERS.teacher, id: 'user-tch-2', email: 'lebedeva@university.ru', full_name: 'Ольга Лебедева' },
   MOCK_USERS.admin,
+]
+
+export const MOCK_DISCIPLINE_GRADES: DisciplineGrade[] = [
+  {
+    id: 'dg-1',
+    student_id: 'user-stu-1',
+    discipline_id: 1,
+    teacher_id: 'user-tch-1',
+    extra_score: 5,
+    notes: '',
+    status: 'certified',
+    works_total: 72,
+    total: 77,
+    student: { id: 'user-stu-1', full_name: 'Иван Иванов', email: 'ivanov@university.ru' },
+    discipline: { id: 1, name: 'Математика', description: 'Высшая математика', created_at: '2025-01-01T00:00:00Z' },
+    teacher: { id: 'user-tch-1', full_name: 'Дмитрий Петров', email: 'petrov@university.ru' },
+  },
+  {
+    id: 'dg-2',
+    student_id: 'user-stu-1',
+    discipline_id: 2,
+    teacher_id: 'user-tch-1',
+    extra_score: 0,
+    notes: '',
+    status: 'pending',
+    works_total: 55,
+    total: 55,
+    student: { id: 'user-stu-1', full_name: 'Иван Иванов', email: 'ivanov@university.ru' },
+    discipline: { id: 2, name: 'Физика', description: 'Общая физика', created_at: '2025-01-01T00:00:00Z' },
+    teacher: { id: 'user-tch-1', full_name: 'Дмитрий Петров', email: 'petrov@university.ru' },
+  },
+  {
+    id: 'dg-3',
+    student_id: 'user-stu-1',
+    discipline_id: 3,
+    teacher_id: 'user-tch-1',
+    extra_score: 10,
+    notes: 'Активное участие в семинарах',
+    status: 'not_certified',
+    works_total: 30,
+    total: 40,
+    student: { id: 'user-stu-1', full_name: 'Иван Иванов', email: 'ivanov@university.ru' },
+    discipline: { id: 3, name: 'Информатика', description: 'Основы информатики', created_at: '2025-01-01T00:00:00Z' },
+    teacher: { id: 'user-tch-1', full_name: 'Дмитрий Петров', email: 'petrov@university.ru' },
+  },
 ]
 
 export const MOCK_DASHBOARD = {

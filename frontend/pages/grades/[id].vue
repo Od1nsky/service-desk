@@ -22,16 +22,6 @@
           size="small"
           @update:value="doChangeStatus"
         />
-        <!-- Student: acknowledge -->
-        <n-button
-          v-if="canAcknowledge"
-          size="small"
-          type="primary"
-          :loading="actionLoading"
-          @click="doAcknowledge"
-        >
-          Подтвердить ознакомление
-        </n-button>
       </div>
     </div>
 
@@ -118,7 +108,39 @@
             <span class="meta-label">Добавлено</span>
             <span>{{ formatDate(store.current.created_at) }}</span>
           </div>
-          <div v-if="store.current.score != null" class="meta-row">
+          <!-- Editable grade_type for teacher -->
+          <div v-if="canEdit" class="meta-row meta-row--edit">
+            <span class="meta-label">Тип оценки</span>
+            <n-select
+              v-model:value="editGradeTypeId"
+              :options="gradeTypeOptions"
+              size="small"
+              style="width: 140px"
+            />
+          </div>
+          <!-- Editable score for teacher -->
+          <div v-if="canEdit" class="meta-row meta-row--edit">
+            <span class="meta-label">Балл</span>
+            <n-input-number
+              v-model:value="editScore"
+              :min="0"
+              :max="currentMaxScore"
+              size="small"
+              style="width: 100px"
+            />
+          </div>
+          <div v-if="canEdit" class="meta-row">
+            <n-button
+              type="primary"
+              size="small"
+              :loading="saveLoading"
+              style="margin-left: auto"
+              @click="saveFields"
+            >
+              Сохранить
+            </n-button>
+          </div>
+          <div v-else-if="store.current.score != null" class="meta-row">
             <span class="meta-label">Балл</span>
             <span class="score-value">{{ store.current.score }}</span>
           </div>
@@ -147,6 +169,7 @@ import {
   NButton,
   NSelect,
   NInput,
+  NInputNumber,
   NCheckbox,
   NTag,
   NTimeline,
@@ -155,7 +178,8 @@ import {
 } from 'naive-ui'
 import { commentsApi } from '~/api/comments'
 import { gradesApi } from '~/api/grades'
-import type { Comment, GradeStatus } from '~/types'
+import { gradeTypesApi } from '~/api/grade-types'
+import type { Comment, GradeStatus, GradeType } from '~/types'
 
 definePageMeta({ middleware: 'auth' })
 
@@ -170,12 +194,29 @@ const newComment = ref('')
 const isInternal = ref(false)
 const commentLoading = ref(false)
 const actionLoading = ref(false)
+const saveLoading = ref(false)
 const newStatus = ref<string | null>(null)
+const scoreInput = ref<number | null>(null)
+const gradeTypes = ref<GradeType[]>([])
+const editScore = ref<number | null>(null)
+const editGradeTypeId = ref<number | null>(null)
 
 onMounted(async () => {
   await store.fetchById(id)
-  const { data } = await commentsApi.list(id)
-  comments.value = data
+  const [commentsRes, typesRes] = await Promise.all([
+    commentsApi.list(id),
+    gradeTypesApi.list(),
+  ])
+  comments.value = commentsRes.data
+  gradeTypes.value = typesRes.data
+  editScore.value = store.current?.score ?? null
+  editGradeTypeId.value = store.current?.grade_type_id ?? null
+})
+
+watch(() => store.current, (g) => {
+  if (!g) return
+  editScore.value = g.score ?? null
+  editGradeTypeId.value = g.grade_type_id ?? null
 })
 
 const canAssign = computed(
@@ -186,10 +227,24 @@ const canChangeStatus = computed(
 )
 const canAcknowledge = computed(
   () =>
-    auth.isStudent &&
-    store.current?.student_id === auth.user?.id &&
-    store.current?.status === 'graded'
+    auth.isTeacher &&
+    store.current?.teacher_id === auth.user?.id &&
+    store.current?.score == null &&
+    store.current?.status !== 'closed'
 )
+
+const canEdit = computed(
+  () =>
+    auth.isTeacher &&
+    store.current?.teacher_id === auth.user?.id &&
+    store.current?.status !== 'closed'
+)
+
+const gradeTypeOptions = computed(() =>
+  gradeTypes.value.map((g) => ({ label: g.name, value: g.id }))
+)
+
+const currentMaxScore = 100
 
 const transitions: Record<string, GradeStatus[]> = {
   pending: ['graded'],
@@ -237,15 +292,33 @@ async function doChangeStatus(status: string) {
 }
 
 async function doAcknowledge() {
+  if (scoreInput.value === null) return
   actionLoading.value = true
   try {
-    await gradesApi.acknowledge(id)
+    await gradesApi.acknowledge(id, scoreInput.value)
     await store.fetchById(id)
-    message.success('Ознакомление подтверждено')
+    scoreInput.value = null
+    message.success('Балл выставлен')
   } catch (e: any) {
     message.error(e?.response?.data?.error || 'Ошибка')
   } finally {
     actionLoading.value = false
+  }
+}
+
+async function saveFields() {
+  saveLoading.value = true
+  try {
+    await gradesApi.update(id, {
+      score: editScore.value,
+      grade_type_id: editGradeTypeId.value,
+    })
+    await store.fetchById(id)
+    message.success('Сохранено')
+  } catch (e: any) {
+    message.error(e?.response?.data?.error || 'Ошибка')
+  } finally {
+    saveLoading.value = false
   }
 }
 

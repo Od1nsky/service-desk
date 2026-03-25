@@ -54,7 +54,7 @@
 </template>
 
 <script setup lang="ts">
-import { NSelect, NSpin, NEmpty, NDataTable, NPagination, NTag } from 'naive-ui'
+import { NSelect, NSpin, NEmpty, NDataTable, NPagination, NTag, NButton } from 'naive-ui'
 import type { TagProps } from 'naive-ui'
 import { h } from 'vue'
 import { disciplinesApi } from '~/api/disciplines'
@@ -134,6 +134,13 @@ const columns = [
     key: 'created_at',
     width: 130,
     render: (row: Grade) => new Date(row.created_at).toLocaleDateString('ru-RU'),
+  },
+  {
+    title: '',
+    key: 'actions',
+    width: 100,
+    render: (row: Grade) =>
+      h(NButton, { size: 'small', onClick: (e: MouseEvent) => { e.stopPropagation(); router.push(`/grades/${row.id}`) } }, { default: () => 'Оценить' }),
   },
 ]
 

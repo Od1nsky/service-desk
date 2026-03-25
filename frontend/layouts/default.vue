@@ -59,7 +59,6 @@ import {
   AddOutline,
   PeopleOutline,
   FolderOutline,
-  BarChartOutline,
   MenuOutline,
   LogOutOutline,
 } from '@vicons/ionicons5'
@@ -71,36 +70,38 @@ const sidebarOpen = ref(false)
 const allNavItems = [
   { to: '/', label: 'Дашборд', icon: HomeOutline, roles: ['admin', 'teacher'] },
   { to: '/grades', label: 'Мои оценки', icon: ListOutline, roles: ['student'] },
+  { to: '/grades', label: 'Все оценки', icon: ListOutline, roles: ['admin', 'teacher'] },
   { to: '/grades/create', label: 'Выставить оценку', icon: AddOutline, roles: ['teacher'] },
   { to: '/teacher/queue', label: 'Очередь на оценивание', icon: TicketOutline, roles: ['teacher', 'admin'] },
+  { to: '/disciplines', label: 'Дисциплины', icon: FolderOutline, roles: ['teacher', 'admin'] },
   { to: '/admin/users', label: 'Пользователи', icon: PeopleOutline, roles: ['admin'] },
-  { to: '/admin/disciplines', label: 'Дисциплины', icon: FolderOutline, roles: ['admin'] },
-  { to: '/', label: 'Статистика', icon: BarChartOutline, roles: ['admin', 'teacher'] },
 ]
 
 const navItems = computed(() =>
   allNavItems.filter((i) => i.roles.includes(auth.user?.role || ''))
 )
 
-const roleLabel = computed(
-  () =>
-    ({
-      student: 'Студент',
-      teacher: 'Преподаватель',
-      admin: 'Администратор',
-    }[auth.user?.role || ''] || '')
-)
+const roleLabelMap: Record<string, string> = {
+  student: 'Студент',
+  teacher: 'Преподаватель',
+  admin: 'Администратор',
+}
+const roleLabel = computed(() => roleLabelMap[auth.user?.role || ''] || '')
 
 const pageTitle = computed(() => {
   const map: Record<string, string> = {
     '/': 'Дашборд',
-    '/grades': 'Мои оценки',
+    '/grades': auth.user?.role === 'student' ? 'Мои оценки' : 'Все оценки',
     '/grades/create': 'Выставить оценку',
     '/teacher/queue': 'Очередь на оценивание',
+    '/disciplines': 'Дисциплины',
     '/admin/users': 'Пользователи',
-    '/admin/disciplines': 'Дисциплины',
+    '/admin/disciplines': 'Управление дисциплинами',
   }
-  return map[route.path] || 'АИС Успеваемость'
+  if (map[route.path]) return map[route.path]
+  if (route.path.startsWith('/disciplines/')) return 'Дисциплина'
+  if (route.path.startsWith('/grades/')) return 'Оценка'
+  return 'АИС Успеваемость'
 })
 </script>
 

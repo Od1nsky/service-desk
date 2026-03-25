@@ -8,6 +8,7 @@ import {
   MOCK_HISTORY,
   MOCK_ALL_USERS,
   MOCK_DASHBOARD,
+  MOCK_DISCIPLINE_GRADES,
 } from '../fixtures/data'
 import type { User } from '../../types'
 
@@ -72,6 +73,14 @@ export async function mockAllApis(
     }
     if (url.includes('/disciplines')) {
       return route.fulfill({ json: MOCK_DISCIPLINES })
+    }
+
+    // Discipline grades
+    if (url.includes('/discipline-grades') && method === 'POST') {
+      return route.fulfill({ json: MOCK_DISCIPLINE_GRADES[0] })
+    }
+    if (url.includes('/discipline-grades')) {
+      return route.fulfill({ json: MOCK_DISCIPLINE_GRADES })
     }
 
     // Stats

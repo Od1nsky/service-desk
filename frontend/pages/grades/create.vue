@@ -122,7 +122,7 @@ async function submit() {
       student_id: form.student_id!,
     })
     message.success('Оценка добавлена')
-    router.push('/teacher/queue')
+    router.push('/grades')
   } catch (e: any) {
     message.error(e?.response?.data?.error || 'Ошибка добавления оценки')
   } finally {

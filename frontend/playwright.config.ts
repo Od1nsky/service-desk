@@ -19,9 +19,9 @@ export default defineConfig({
   ],
   use: {
     baseURL: 'http://localhost:3000',
-    trace: 'on',
+    trace: 'off',
     screenshot: 'on',
-    video: { mode: 'on', size: { width: 1440, height: 900 } },
+    video: 'off',
     viewport: { width: 1440, height: 900 },
     locale: 'ru-RU',
     timezoneId: 'Europe/Moscow',

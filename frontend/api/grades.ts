@@ -16,6 +16,8 @@ export const gradesApi = {
     useApi().patch(`/grades/${id}/status`, { status }),
   assign: (id: string) =>
     useApi().patch(`/grades/${id}/assign`),
-  acknowledge: (id: string) =>
-    useApi().patch(`/grades/${id}/acknowledge`),
+  update: (id: string, data: { score?: number | null; grade_type_id?: number | null }) =>
+    useApi().patch(`/grades/${id}`, data),
+  acknowledge: (id: string, score: number) =>
+    useApi().patch(`/grades/${id}/acknowledge`, { score }),
 }

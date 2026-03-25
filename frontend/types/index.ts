@@ -71,6 +71,24 @@ export interface GradeHistory {
   user?: UserInfo
 }
 
+export type DisciplineGradeStatus = 'pending' | 'certified' | 'not_certified'
+
+export interface DisciplineGrade {
+  id?: string
+  student_id: string
+  discipline_id: number
+  teacher_id?: string | null
+  extra_score: number | null
+  notes: string
+  status: DisciplineGradeStatus
+  works_total: number | null
+  total: number | null
+  student?: UserInfo
+  discipline?: Discipline
+  teacher?: UserInfo
+  updated_at?: string
+}
+
 export interface PaginatedResponse<T> {
   data: T[]
   total: number

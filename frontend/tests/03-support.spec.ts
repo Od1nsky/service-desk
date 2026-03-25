@@ -74,4 +74,26 @@ test.describe('Teacher flow', () => {
     await page.fill('.n-form .n-input input, .n-form .n-input textarea', 'Контрольная работа по теме «Пределы»')
     await screenshot(page, '08-create-grade-filled', proj)
   })
+
+  test('grades — disciplines tab (teacher)', async ({ page }, testInfo) => {
+    const proj = testInfo.project.name
+    await page.goto('/grades')
+    await page.waitForSelector('.n-tabs', { timeout: 8000 })
+    await page.click('.n-tabs-tab:has-text("По дисциплинам")')
+    await page.waitForTimeout(500)
+    await screenshot(page, '25-grades-disciplines-tab', proj)
+  })
+
+  test('grades — disciplines tab with filters open', async ({ page }, testInfo) => {
+    const proj = testInfo.project.name
+    await page.goto('/grades')
+    await page.waitForSelector('.n-tabs', { timeout: 8000 })
+    await page.click('.n-tabs-tab:has-text("По дисциплинам")')
+    await page.waitForTimeout(400)
+    // Open discipline dropdown to show options
+    await page.locator('.n-tab-pane .filters-bar .n-select').first().click()
+    await page.waitForTimeout(400)
+    await screenshot(page, '26-grades-disciplines-filter', proj)
+    await page.keyboard.press('Escape')
+  })
 })

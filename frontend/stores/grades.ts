@@ -12,6 +12,7 @@ export const useGradesStore = defineStore('grades', {
     history: [] as GradeHistory[],
     loading: false,
     filters: {
+      task_name: '',
       status: '',
       grade_type_id: null as number | null,
       discipline_id: null as number | null,
@@ -22,6 +23,7 @@ export const useGradesStore = defineStore('grades', {
       this.loading = true
       try {
         const params: Record<string, unknown> = { page: this.page, limit: this.limit }
+        if (this.filters.task_name) params.task_name = this.filters.task_name
         if (this.filters.status) params.status = this.filters.status
         if (this.filters.grade_type_id) params.grade_type_id = this.filters.grade_type_id
         if (this.filters.discipline_id) params.discipline_id = this.filters.discipline_id

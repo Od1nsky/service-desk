@@ -2,7 +2,9 @@
   <NConfigProvider :theme-overrides="themeOverrides">
     <NMessageProvider>
       <NDialogProvider>
-        <NuxtPage />
+        <NuxtLayout>
+          <NuxtPage />
+        </NuxtLayout>
       </NDialogProvider>
     </NMessageProvider>
   </NConfigProvider>
